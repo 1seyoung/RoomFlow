@@ -38,7 +38,7 @@ services:
       - server
 
   db:
-    image: postgres:15
+    image: ankane/pgvector:latest
     container_name: roomflow-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
