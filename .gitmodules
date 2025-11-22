@@ -1,0 +1,9 @@
+[submodule "ai-agent"]
+	path = ai-agent
+	url = git@github.com:1seyoung/rf-ai-agent.git
+[submodule "web"]
+	path = web
+	url = git@github.com:1seyoung/rf-web.git
+[submodule "server"]
+	path = server
+	url = git@github.com:1seyoung/rf-server.git
