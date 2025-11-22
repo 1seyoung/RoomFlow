@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  web:
+    build: ./web
+    container_name: roomflow-web
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - roomflow-net
+
+  server:
+    build: ./server
+    container_name: roomflow-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - roomflow-net
+
+  ai-agent:
+    build: ./ai-agent
+    container_name: roomflow-ai
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "8000:8000"
+    networks:
+      - roomflow-net
+    depends_on:
+      - server
+
+  db:
+    image: postgres:15
+    container_name: roomflow-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - roomflow-db-data:/var/lib/postgresql/data
+    networks:
+      - roomflow-net
+
+networks:
+  roomflow-net:
+
+volumes:
+  roomflow-db-data:
