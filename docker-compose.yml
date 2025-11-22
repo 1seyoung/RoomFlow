@@ -6,27 +6,8 @@ services:
       context: ./web
       dockerfile: Dockerfile
     container_name: roomflow-web
-    
     ports:
       - "80:80"
-    depends_on:
-      - server
-    networks:
-      - roomflow-net
-
-  server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: roomflow-server
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
     networks:
       - roomflow-net
 
@@ -42,7 +23,7 @@ services:
     networks:
       - roomflow-net
     depends_on:
-      - server
+      - db
 
   db:
     image: ankane/pgvector:latest
@@ -58,28 +39,9 @@ services:
     networks:
       - roomflow-net
 
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - archi-network
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
 networks:
   roomflow-net:
 
 volumes:
   roomflow-db-data:
-    driver: local
-  redis_data:
     driver: local
