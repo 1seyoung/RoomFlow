@@ -10,6 +10,8 @@ services:
       - "80:80"
     networks:
       - roomflow-net
+    volumes:
+      - ./uploads:/usr/share/nginx/html/uploads   
 
   ai-agent:
     build:
@@ -18,8 +20,25 @@ services:
     container_name: roomflow-ai
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      MCP_SERVER_URL: http://mcp-postgres:3000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     ports:
       - "8000:8000"
+    networks:
+      - roomflow-net
+    depends_on:
+      - db
+      - mcp-postgres
+    volumes:
+      - ./uploads:/app/uploads 
+
+  mcp-postgres:
+    image: modelcontextprotocol/server-postgres:latest
+    container_name: roomflow-mcp
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    ports:
+      - "3000:3000"
     networks:
       - roomflow-net
     depends_on:
@@ -36,6 +55,7 @@ services:
       - "5432:5432"
     volumes:
       - roomflow-db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - roomflow-net
 
